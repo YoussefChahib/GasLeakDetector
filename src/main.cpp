@@ -9,6 +9,15 @@
 #include <WiFi.h>  
 #include <Arduino.h>
 
+
+// function prototypes (inportant if you are on vscode, not necessary on wokwi online simulator)
+void connectToWiFi();
+bool i2CAddrTest(uint8_t addr);
+void updateRow(int row, const char* message, int value);
+void handleGasCleared();
+void handleGasDetected();
+
+
 // Wifi credentials
 char ssid[] = "Wokwi-GUEST";
 char pass[] = "";
@@ -123,7 +132,7 @@ void handleGasDetected() {
   Wstepper.moveTo(200);
   Vstepper.moveTo(200);
 
-  
+
   Blynk.logEvent("notification", "Gas detected! Taking safety measures."); 
 }
 
