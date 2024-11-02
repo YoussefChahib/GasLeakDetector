@@ -2,11 +2,11 @@
 
 ## Overview
 
-Gas leaks and fires pose significant risks to both safety and lives. 
-This project presents an IoT based solution for detecting and alerting users to potential gas leaks and fire hazards. Using gas sensors (*MQ2* and *MQ9*) and an *ESP32 microcontroller*, the system continuously monitors toxic gas levels and triggers visual (using a *LED*) and audio (using a *Buzzer*) alerts when dangerous levels are detected.
-In addition to alerting, this system also takes preventive action by controlling windows and ventilation through *bipolar stepper motors* and their *drivers*.
-Real-time monitoring and notifications are sent to the user through the *Blynk* mobile application.
-The system is also equiped with *LCD screen* to informe the users of its current situation. 
+Gas leaks and fires pose significant risks to both safety and lives. <br />
+This project presents an IoT based solution for detecting and alerting users to potential gas leaks and fire hazards. Using gas sensors (*MQ2* and *MQ9*) and an *ESP32 microcontroller*, the system continuously monitors toxic gas levels and triggers visual (using a *LED*) and audio (using a *Buzzer*) alerts when dangerous levels are detected.<br />
+In addition to alerting, this system also takes preventive action by controlling windows and ventilation through *bipolar stepper motors* and their *drivers*.<br />
+Real-time monitoring and notifications are sent to the user through the *Blynk* mobile application.<br />
+The system is also equiped with *LCD screen* to informe the users of its current situation. <br />
 
 ## ✨ Key Features
 
