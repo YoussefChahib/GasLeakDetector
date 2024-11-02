@@ -55,3 +55,20 @@ The system is also equiped with *LCD screen* to informe the users of its current
    git clone https://github.com/YoussefChahib/GasLeakDetector_ESP32_Blynk
    cd GasLeakDetector_ESP32_Blynk
    build and run the project using Wokwi for VSCode or on Wokwi online simulator
+
+2. Update WiFi credentials and Blynk authentication token
+   ```cpp
+   #define WIFI_SSID "Your_SSID"
+   #define WIFI_PASS "Your_Password"
+   #define BLYNK_AUTH "Your_Blynk_Token"
+
+
+<div align="center">
+  <img src="assets/images/3.jpg" alt="simulation" width="400"/>
+  <p><em>Simulation screenshot</em></p>
+</div>
+
+<div align="center">
+  <img src="assets/images/1.jpg" alt="Blynk" width="400"/>
+  <p><em>Blynk Mobile Interface, and notification</em></p>
+</div>
