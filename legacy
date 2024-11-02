@@ -1,0 +1,148 @@
+#include <Arduino.h>
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+#include <AccelStepper.h>
+
+#define BLYNK_TEMPLATE_ID "TMPL2HvtiTOcy"
+#define BLYNK_TEMPLATE_NAME "RestaurantGazLeakDetector"
+#define BLYNK_AUTH_TOKEN "J9KhjnSTsot0TbaUDwRKk1bvMARNAZu3"
+
+#include <BlynkSimpleEsp32.h>
+
+char ssid[] = "Wokwi-GUEST";
+char pass[] = "";
+
+bool i2CAddrTest(uint8_t addr);
+void handleGasDetected();
+void handleGasCleared();
+void updateRow(int row, const char* message, int value);
+
+// Initialize the LCD (I2C address 0x27, 20 columns x 4 rows)
+LiquidCrystal_I2C lcd(0x27, 20, 4);
+
+// Define SDA and SCL pins
+#define SDA 13
+#define SCL 14
+
+// Pins
+const int ledPin = 25;
+const int buzzerPin = 26;
+const int mq2Pin = 34;
+const int mq9Pin = 35;
+
+// Motor 1 Pins (Window)
+const int stepPin1 = 32;
+const int dirPin1 = 27;
+
+// Motor 2 Pins (Ventilator)
+const int stepPin2 = 33;
+const int dirPin2 = 12;
+
+// Create motor objects
+AccelStepper Wstepper(AccelStepper::DRIVER, stepPin1, dirPin1);
+AccelStepper Vstepper(AccelStepper::DRIVER, stepPin2, dirPin2);
+
+// State flag to track gas detection
+bool gasDetected = false;
+
+void setup() {
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+  // Initialize I2C and LCD
+  Wire.begin(SDA, SCL);
+  if (!i2CAddrTest(0x27)) {
+    lcd = LiquidCrystal_I2C(0x3F, 20, 4);  // Switch to 0x3F if 0x27 isn't working
+  }
+  lcd.init();
+  lcd.backlight();
+  
+  // Display initial message
+  lcd.setCursor(0, 0);
+  lcd.print("Hello, measuring...");
+
+  // Configure pins
+  pinMode(ledPin, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(mq2Pin, INPUT);
+  pinMode(mq9Pin, INPUT);
+
+  // Configure motors
+  Wstepper.setMaxSpeed(1000);
+  Wstepper.setAcceleration(500);
+  Vstepper.setMaxSpeed(1000);
+  Vstepper.setAcceleration(500);
+}
+
+void loop() {
+  // Read gas sensor values
+  int mq2Value = analogRead(mq2Pin);
+  int mq9Value = analogRead(mq9Pin);
+
+  // Update gas values on LCD
+  updateRow(1, "MQ2: ", mq2Value);
+  updateRow(2, "MQ9: ", mq9Value);
+
+  if (mq2Value > 300 || mq9Value > 300) {
+    if (!gasDetected) {
+      gasDetected = true;
+      handleGasDetected();
+    }
+  } else {
+    if (gasDetected) {
+      gasDetected = false;
+      handleGasCleared();
+    }
+  }
+
+  // Run motors to reach target positions
+  Wstepper.run();
+  Vstepper.run();
+
+  // Small delay to prevent flickering
+  delay(100);
+}
+
+void handleGasDetected() {
+  // Turn on LED and buzzer
+  digitalWrite(ledPin, HIGH);
+  digitalWrite(buzzerPin, HIGH);
+
+  // Display alert message
+  updateRow(3, "Opening window & vent", 0);
+
+  // Start opening window and ventilator
+  Wstepper.moveTo(200);  // Adjust steps for full open
+  Vstepper.moveTo(200);  // Adjust steps for ventilator
+}
+
+void handleGasCleared() {
+  // Turn off LED and buzzer
+  digitalWrite(ledPin, LOW);
+  digitalWrite(buzzerPin, LOW);
+
+  // Display closing message
+  updateRow(3, "Closing window & vent", 0);
+
+  // Close window and stop ventilator
+  Wstepper.moveTo(0);  // Return to closed position
+  Vstepper.moveTo(0);  // Stop ventilator
+}
+
+// Function to clear and update a specific row on the LCD
+void updateRow(int row, const char* message, int value) {
+  lcd.setCursor(0, row);
+  char buffer[21];  // Buffer for the full 20-character row (extra for null-terminator)
+  snprintf(buffer, sizeof(buffer), "%-20s", message);  // Format to 20 chars with padding
+  lcd.print(buffer);  // Print the padded message
+
+  if (value >= 0) {  // If a numeric value is provided
+    lcd.setCursor(strlen(message), row);  // Align value after the message
+    lcd.print(value);
+  }
+}
+
+// Helper function to test I2C address
+bool i2CAddrTest(uint8_t addr) {
+  Wire.begin();
+  Wire.beginTransmission(addr);
+  return (Wire.endTransmission() == 0);
+}
