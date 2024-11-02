@@ -1,6 +1,6 @@
-#define BLYNK_TEMPLATE_ID "TMPL2HvtiTOcy"
+#define BLYNK_TEMPLATE_ID "YourTemplateId" // change thissssss
 #define BLYNK_TEMPLATE_NAME "RestaurantGazLeakDetector"
-#define BLYNK_AUTH_TOKEN "J9KhjnSTsot0TbaUDwRKk1bvMARNAZu3"
+#define BLYNK_AUTH_TOKEN "YourAuthToken" // also thissssss
 
 #include <BlynkSimpleEsp32.h>
 #include <LiquidCrystal_I2C.h>
@@ -78,6 +78,7 @@ void loop() {
   int mq9Value = analogRead(mq9Pin);
 
   // Send values to Blynk
+  // make sure to create 2 data flow in your device template on Blynk: V0 and V1
   Blynk.virtualWrite(V0, mq2Value); // Update virtual pin V0 with MQ2 value
   Blynk.virtualWrite(V1, mq9Value); // Update virtual pin V1 with MQ9 value
 
@@ -122,7 +123,7 @@ void handleGasDetected() {
   Wstepper.moveTo(200);
   Vstepper.moveTo(200);
 
-
+  
   Blynk.logEvent("notification", "Gas detected! Taking safety measures."); 
 }
 
